@@ -17,6 +17,7 @@ Scheduler *scheduler;			// the ready list
 Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
+DLList DL;
 char* changemode;
 					// for invoking context switches
 

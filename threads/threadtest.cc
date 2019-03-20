@@ -11,7 +11,7 @@
 
 #include "copyright.h"
 #include "system.h"
-#include "dlist.cc"
+#include "dlist-driver.cc"
 #include "thread.h"
 // testnum is set in main.cc
 int testnum = 1;
@@ -24,8 +24,8 @@ int testnum = 1;
 //	"which" is simply a number identifying the thread, for debugging
 //	purposes.
 //----------------------------------------------------------------------
-DLList D;
-void showAllElem();
+
+
 void
 SimpleThread(int which)
 {
@@ -38,40 +38,12 @@ SimpleThread(int which)
 }
 
 
-void ASimpleThreadOne(int which) {
-    for(int num = 0; num < 5; num++) {
-	    int *key = new int;
-	    *key = num;
-	    printf("*** thread %d insert number %d\n", which, num);
-	    D.Append(key);
-        showAllElem();
-        // currentThread->Yield(); 
-    }
-    showAllElem();
-}
-void ASimpleThreadTwo(int which) {
-    for(int num = 5; num < 10; num++) {
-	    int *key = new int;
-	    *key = num;
-	    printf("*** thread %d insert number %d\n", which, num);
-	    D.Append(key);
-        showAllElem();
-        // currentThread->Yield(); 
-    }
-    showAllElem();
-    
+void ASimpleThread(int which) {
+    insertOrderNum(&DL, which);
 }
 
 
-void showAllElem() {
-    // int *ptr;
-    DLLElement *p = D.getfirst();
-    while(p != D.getlast()) {
-        printf("%d-->", *((int*)p->item));
-        p = p->next;
-    }
-    printf("%d\n", *(int*)p->item);
-}
+
 
 
 //----------------------------------------------------------------------
@@ -89,10 +61,9 @@ ThreadTest1()
     Thread *t2 = new Thread("thread2");
     int *key = new int;
     *key = 100;
-    D.Append(key);
-    t1->Fork(ASimpleThreadOne, 1);
-    t2->Fork(ASimpleThreadTwo, 2);
-
+    DL.Append(key);
+    t1->Fork(ASimpleThread, 0);
+    t2->Fork(ASimpleThread, 1);
 }
 
 
