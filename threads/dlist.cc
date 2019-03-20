@@ -58,26 +58,17 @@ void DLList::Append(void *item) {
         int tmp = changemode[i] - '0';
         if(tmp >= 0 && tmp <= 9) {
             flag[tmp] = 1;
-            // printf("%d\n", tmp);
         }
         i++;
     }
-    // for(i = 0; i < 10; ++i) {
-    //     printf("%d ", flag[i]);
-    // }
-    // printf("\n");
     //empty
     if(IsEmpty()) {
-//        cout << 111 << endl;
         DLLElement *insertElement;
         insertElement = new DLLElement(item, 0);
         first = insertElement;
         last = insertElement;
-//        cout << first->key << endl;
         // not empty
     } else {
-//        cout << 222 << endl;
-//        cout << last->key + 1 << endl;
         DLLElement *insertElement = new DLLElement(item, last->key + 1);
         printf("(1)--->%s: do new DLLElement, next command is [ p->next = insertElement ]\n", currentThread->getName());
         if(flag[1]) {
