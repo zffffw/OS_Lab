@@ -47,20 +47,7 @@ void DLList::Prepend(void *item) {
 }
 
 void DLList::Append(void *item) {
-    int flag[20];
-    int i = 0;
-    for(i = 0; i < 10; ++i) {
-        flag[i] = 0;
-    }
-    i = 0;
-    while(changemode[i]) {
-
-        int tmp = changemode[i] - '0';
-        if(tmp >= 0 && tmp <= 9) {
-            flag[tmp] = 1;
-        }
-        i++;
-    }
+    
     //empty
     if(IsEmpty()) {
         DLLElement *insertElement;
@@ -71,23 +58,23 @@ void DLList::Append(void *item) {
     } else {
         DLLElement *insertElement = new DLLElement(item, last->key + 1);
         printf("(1)--->%s: do new DLLElement, next command is [ p->next = insertElement ]\n", currentThread->getName());
-        if(flag[1]) {
+        if(changePoint[1]) {
             currentThread->Yield();
         }
         DLLElement *p = last;
         p->next = insertElement;
         printf("(2)--->%s: do p->next = insertElement, next command is [ insertElement->prev = p ]\n", currentThread->getName());
-        if(flag[2]) {
+        if(changePoint[2]) {
             currentThread->Yield();
         }
         insertElement->prev = p;
         printf("(3)--->%s: do insertElement->prev = p, next command is [ last = insertElement ]\n", currentThread->getName());
-        if(flag[3]) {
+        if(changePoint[3]) {
             currentThread->Yield();
         }
         last = insertElement;
         printf("(4)--->%s: do last = insertElement, no next command\n", currentThread->getName());
-        if(flag[4]) {
+        if(changePoint[4]) {
             currentThread->Yield();
         }
     }

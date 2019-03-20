@@ -93,10 +93,33 @@ main(int argc, char **argv)
     
 #ifdef THREADS
 	changemode = (char *)malloc(100*sizeof(char));
+	changemode = argv[1];
+    for(int i = 0; i < 100; ++i) {
+        changePoint[i] = 0;
+    }
+    int i = 0;
+	int tmp = 0;
+	// printf("%s\n", changemode);
+    while(changemode[i]) {
+		// printf("%c\n", changemode[i]);
+        if(changemode[i] == '*') {
+			changePoint[tmp] = 1;
+			// printf("%d\n", tmp);
+			tmp = 0;
+		} else {
+			tmp = tmp*10 + (changemode[i] - '0');
+		}
+        i++;
+    }
+	changePoint[tmp] = 1;
+	for(i = 0; i < 20; ++i) {
+		printf("%d ", changePoint[i]);
+	}
+	printf("\n\n");
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
       argCount = 1;
 	//   printf("%s\n", argv[0]);
-	  changemode = argv[0];
+	  
       switch (argv[0][1]) {
       case 'q':
         testnum = atoi(argv[1]);

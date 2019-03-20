@@ -18,6 +18,7 @@ Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
 DLList DL;
+int changePoint[100];
 char* changemode;
 					// for invoking context switches
 
