@@ -10,9 +10,11 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "system.h"
-#include "dlist-driver.cc"
+
+#include "Table.h"
 #include "thread.h"
+#include "dllist.h"
+#include "system.h"
 // testnum is set in main.cc
 int testnum = 1;
 
@@ -24,8 +26,13 @@ int testnum = 1;
 //	"which" is simply a number identifying the thread, for debugging
 //	purposes.
 //----------------------------------------------------------------------
-
-
+void outputStatus(DLList*, int , char* );
+void showAllElem(DLList *D);
+void insertOrderNum(DLList *D, int which);
+void sortInsertNum(DLList *D, int which);
+void outputStatus(DLList *D,  int which, char* current);
+void ASimpleRemoveTest(int which);
+void removeElem(DLList *D, int which);
 void
 SimpleThread(int which)
 {
@@ -40,6 +47,14 @@ SimpleThread(int which)
 
 void ASimpleThread(int which) {
     insertOrderNum(&DL, which);
+}
+
+void ASimpleRemoveTest(int which) {
+    insertOrderNum(&DL, which);
+    removeElem(&DL, which);
+}
+void ASimpleRemoveTest2(int which) {
+    sortInsertNum(&DL, which);
 }
 
 
@@ -57,13 +72,33 @@ ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
 
-    Thread *t1 = new Thread("thread1");
-    Thread *t2 = new Thread("thread2");
+    Thread *t1 = new Thread("t0");
+    Thread *t2 = new Thread("t1");
     int *key = new int;
     *key = 100;
     DL.Append(key);
     t1->Fork(ASimpleThread, 0);
     t2->Fork(ASimpleThread, 1);
+    
+}
+
+void ThreadTest2() {
+    Thread *t1 = new Thread("t0");
+    Thread *t2 = new Thread("t1");
+    int *key = new int;
+    *key = 100;
+    DL.Append(key);
+    t1->Fork(ASimpleRemoveTest, 0);
+    t2->Fork(ASimpleRemoveTest, 1);
+}
+void ThreadTest3() {
+    Thread *t1 = new Thread("t0");
+    Thread *t2 = new Thread("t1");
+    int *key = new int;
+    *key = 100;
+    DL.Append(key);
+    t1->Fork(ASimpleRemoveTest2, 0);
+    t2->Fork(ASimpleRemoveTest2, 1);
 }
 
 
@@ -78,7 +113,9 @@ ThreadTest()
 {
     switch (testnum) {
     case 1:
-	ThreadTest1();
+	// ThreadTest1();
+    ThreadTest1();
+    // DL.printList();
 	break;
     default:
 	printf("No test specified.\n");

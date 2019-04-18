@@ -7,29 +7,18 @@
 //
 
 
+#include <random>
 #include "dlist.cc"
 
-void showAllElem(DLList *D) {
-    DLLElement *p = D->getfirst();
-    while(p != D->getlast()) {
-        printf("%d-->", *((int*)p->item));
-        p = p->next;
+void generateNandInsert(DLList *D) {
+    srand((unsigned)time(NULL));
+    for (size_t i = 0; i < 10; ++i) { //生成十个随
+        int* key = new int;
+        *key = (int)((rand() % 100));
+//        cout << key << endl;
+        D->SortedInsert(key, *key);
     }
-    printf("%d\n", *(int*)p->item);
 }
-
-void insertOrderNum(DLList *D, int which) {
-    for(int num = which*5; num < which*5 + 5; num++) {
-        int *key = new int;
-        *key = num;
-        printf("*** thread %d insert number %d\n", which, num);
-        D->Append(key);
-        showAllElem(D);
-        // currentThread->Yield(); 
-    }
-    showAllElem(D);
-}
-
 
 void removeAndPrintIt(DLList *D) {
     int *ptr;
@@ -39,8 +28,8 @@ void removeAndPrintIt(DLList *D) {
     }
 }
 
-// int main() {
-//     DLList D;
-//     generateNandInsert(&D);
-//     removeAndPrintIt(&D);
-// }
+int main() {
+    DLList D;
+    generateNandInsert(&D);
+    removeAndPrintIt(&D);
+}

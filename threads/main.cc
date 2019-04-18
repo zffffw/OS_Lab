@@ -77,6 +77,24 @@ extern void MailTest(int networkID);
 //	"argv" is an array of strings, one for each command line argument
 //		ex: "nachos -d +" -> argv = {"nachos", "-d", "+"}
 //----------------------------------------------------------------------
+void outputStart() {
+    printf("|");
+    MOVERIGHT(15);
+    printf("Thread 0");
+    MOVELEFT(100);
+    MOVERIGHT(50);
+    printf("|");
+    MOVELEFT(100);
+    MOVERIGHT(70);
+    printf("Thread 1");
+    MOVELEFT(100);
+    MOVERIGHT(99);
+    printf("|\n");
+    for(int i = 0; i < 100; ++i) {
+		putchar('-');
+	}
+	putchar('\n');
+}
 
 int
 main(int argc, char **argv)
@@ -87,9 +105,10 @@ main(int argc, char **argv)
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
 	for(int i = 0; i < 100; ++i) {
-		putchar('*');
+		putchar('-');
 	}
 	putchar('\n');
+	outputStart();
     
 #ifdef THREADS
 	changemode = (char *)malloc(100*sizeof(char));
@@ -97,25 +116,27 @@ main(int argc, char **argv)
     for(int i = 0; i < 100; ++i) {
         changePoint[i] = 0;
     }
-    int i = 0;
-	int tmp = 0;
-	// printf("%s\n", changemode);
-    while(changemode[i]) {
-		// printf("%c\n", changemode[i]);
-        if(changemode[i] == '*') {
-			changePoint[tmp] = 1;
-			// printf("%d\n", tmp);
-			tmp = 0;
-		} else {
-			tmp = tmp*10 + (changemode[i] - '0');
+	if(changemode) {
+		int i = 0;
+		int tmp = 0;
+		// printf("%s\n", changemode);
+		while(changemode[i]) {
+			// printf("%c\n", changemode[i]);
+			if(changemode[i] == '*') {
+				changePoint[tmp] = 1;
+				// printf("%d\n", tmp);
+				tmp = 0;
+			} else {
+				tmp = tmp*10 + (changemode[i] - '0');
+			}
+			i++;
 		}
-        i++;
-    }
-	changePoint[tmp] = 1;
-	for(i = 0; i < 20; ++i) {
-		printf("%d ", changePoint[i]);
+		changePoint[tmp] = 1;
 	}
-	printf("\n\n");
+	// for(i = 0; i < 20; ++i) {
+	// 	printf("%d ", changePoint[i]);
+	// }
+	// printf("\n\n");
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
       argCount = 1;
 	//   printf("%s\n", argv[0]);
@@ -132,6 +153,7 @@ main(int argc, char **argv)
     }
 	// printf("%s\n", changemode);
     ThreadTest();
+	
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {

@@ -10,6 +10,8 @@
 #define dlist_hpp
 
 
+#include <iostream>
+using namespace std;
 class DLLElement {
 public:
     DLLElement( void *itemPtr, int sortKey ); // initialize a list element
@@ -38,8 +40,6 @@ public:
     void *SortedRemove(int sortKey); // remove first item with key==sortKey
     // return NULL if no such item exists
     void printList();
-    DLLElement* getfirst();
-    DLLElement* getlast();
 private:
     DLLElement *first; // head of the list, NULL if empty
     DLLElement *last; // last element of the list, NULL if empty

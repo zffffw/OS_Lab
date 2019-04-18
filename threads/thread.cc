@@ -182,7 +182,7 @@ Thread::Yield ()
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
     
     nextThread = scheduler->FindNextToRun();
-    printf("\n************************\n*next thread is %s*\n************************\n\n", nextThread->getName());
+    // printf("\n************************\n*next thread is %s*\n************************\n\n", nextThread->getName());
     if (nextThread != NULL) {
 	scheduler->ReadyToRun(this);
 	scheduler->Run(nextThread);
@@ -222,7 +222,7 @@ Thread::Sleep ()
     status = BLOCKED;
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
 	interrupt->Idle();	// no one to run, wait for an interrupt
-        
+    
     scheduler->Run(nextThread); // returns when we've been signalled
 }
 
