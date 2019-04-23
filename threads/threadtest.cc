@@ -17,6 +17,9 @@
 #include "system.h"
 // testnum is set in main.cc
 int testnum = 1;
+Table testTable(10);
+Lock test_lock("test_lock");
+Condition test_condition("test_condition");
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -33,11 +36,11 @@ void sortInsertNum(DLList *D, int which);
 void outputStatus(DLList *D,  int which, char* current);
 void ASimpleRemoveTest(int which);
 void removeElem(DLList *D, int which);
+
 void
 SimpleThread(int which)
 {
     int num;
-    
     for (num = 0; num < 5; num++) {
 	printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
@@ -50,14 +53,44 @@ void ASimpleThread(int which) {
 }
 
 void ASimpleRemoveTest(int which) {
+    // test_lock.Acquire();
     insertOrderNum(&DL, which);
     removeElem(&DL, which);
+    // test_lock.Release();
 }
 void ASimpleRemoveTest2(int which) {
     sortInsertNum(&DL, which);
 }
 
 
+// thread0 and thread1 do different things
+void TableTest(int which) {
+    const char test1[10][10] = {"一", "二", "三", "四", "五", "六", "七", "八", "九", "十"};
+    const char test2[10][10] = {"幺", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖", "拾"};
+    switch (which)
+    {
+        case 0: {
+            for(int i = 0; i < 10; ++i) {
+                printf("%s: %d \n", currentThread->getName(), testTable.Alloc((void *)test1[i]));
+            }
+            // testTable.Release(5);
+        } break;
+        case 1: {
+            for(int i = 0; i < 10; ++i) {
+                printf("%s: %d \n", currentThread->getName(), testTable.Alloc((void *)test2[i]));
+            }
+        }
+    }
+    testTable.Release(5);
+    testTable.Release(4);
+}
+
+void TableTestDriver() {
+    Thread* t0 = new Thread("t0");
+    Thread* t1 = new Thread("t1");
+    t0->Fork(TableTest, 0);
+    t1->Fork(TableTest, 1);
+}
 
 
 
@@ -112,11 +145,18 @@ void
 ThreadTest()
 {
     switch (testnum) {
+    case 0:
+        TableTestDriver();
+    break;
     case 1:
-	// ThreadTest1();
-    ThreadTest1();
-    // DL.printList();
-	break;
+	    ThreadTest1();
+    break;
+    case 2:
+        ThreadTest2();
+    break;
+    case 3:
+        ThreadTest3();
+    break;
     default:
 	printf("No test specified.\n");
 	break;

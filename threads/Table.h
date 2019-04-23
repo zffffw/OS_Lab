@@ -26,6 +26,7 @@ files, etc.
 
 */
 #include "list.h"
+#include "system.h"
 #include "synch.h"
 class Table {
    public:
@@ -40,7 +41,8 @@ class Table {
      // (assert index is in range).  Leave the table entry allocated
      // and the pointer in place.
      void *Get(int index);
-   
+
+     int getCurSize();
      // free a table slot
      void Release(int index);
    private:

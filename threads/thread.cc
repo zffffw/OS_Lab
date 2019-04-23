@@ -182,8 +182,9 @@ Thread::Yield ()
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
     
     nextThread = scheduler->FindNextToRun();
-    // printf("\n************************\n*next thread is %s*\n************************\n\n", nextThread->getName());
+    
     if (nextThread != NULL) {
+    // printf("\n************************\n*next thread is %s*\n************************\n\n", nextThread->getName());
 	scheduler->ReadyToRun(this);
 	scheduler->Run(nextThread);
     }

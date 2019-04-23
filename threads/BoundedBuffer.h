@@ -1,9 +1,12 @@
-#include "synch-sem.h"
+#include "synch.h"
+#include <cstring>
+
 class BoundedBuffer {
    public:
      // create a bounded buffer with a limit of 'maxsize' bytes
      BoundedBuffer(int maxsize);
      ~BoundedBuffer();
+     
      // read 'size' bytes from the bounded buffer, storing into 'data'.
      // ('size' may be greater than 'maxsize')
      void Read(void *data, int size);
@@ -12,13 +15,12 @@ class BoundedBuffer {
      // ('size' may be greater than 'maxsize')
      void Write(void *data, int size);
    private:
-     int maxSize;
-     int count;
-     Lock* boundLock;
-     Condition* notFull;
-     Condition* notEmpty;
-     void *buffer;
-     int nextRead;
-     int nextWrite;
+    char *buffer;
+    int count;
+    int maxSize;
+    int nextRead;
+    int nextWrite;
+    Lock *lock;
+    Condition *notFull, *notEmpty;
+     // ???
 };
-
