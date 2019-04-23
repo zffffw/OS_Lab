@@ -15,12 +15,13 @@
 #include "thread.h"
 #include "dllist.h"
 #include "system.h"
+#include "BoundedBuffer.h"
 // testnum is set in main.cc
 int testnum = 1;
 Table testTable(10);
 Lock test_lock("test_lock");
 Condition test_condition("test_condition");
-
+BoundedBuffer buffer(30);
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -62,6 +63,35 @@ void ASimpleRemoveTest2(int which) {
     sortInsertNum(&DL, which);
 }
 
+void TestBoundedBuffer(int which) {
+    printf("*** thread %d begins to run\n", which);
+    int num;
+    for (num = 0; num < 5; num++) {
+        if (which) {
+            char writeMsg[21] = "WriteByThread1,Time1";
+            writeMsg[13] = which + '0';
+            writeMsg[19] = num + '0';
+
+            printf("   Thread %d, Times %d, Write: %s\n", which, num, writeMsg);
+            buffer.Write(writeMsg, 20);
+        } else {
+            char readMsg[21] = "                   ";
+            buffer.Read(readMsg, 20);
+            printf("   Thread %d, Times %d, Read: %s\n", which, num, readMsg);
+            printf("*** thread %d looped %d times\n", which, num + 1);
+        }
+        
+	    printf("*** thread %d looped %d times\n", which, num + 1);
+    }
+}
+
+int ThreadTestForBoundedBuffer() {
+    Thread *t0 = new Thread("t0");
+    Thread *t1 = new Thread("t1");
+    t0->Fork(TestBoundedBuffer, 0);
+    t1->Fork(TestBoundedBuffer, 1);
+    return 0;
+}
 
 // thread0 and thread1 do different things
 void TableTest(int which) {
@@ -71,13 +101,13 @@ void TableTest(int which) {
     {
         case 0: {
             for(int i = 0; i < 10; ++i) {
-                printf("%s: %d \n", currentThread->getName(), testTable.Alloc((void *)test1[i]));
+                testTable.Alloc((void *)test1[i]);
             }
             // testTable.Release(5);
         } break;
         case 1: {
             for(int i = 0; i < 10; ++i) {
-                printf("%s: %d \n", currentThread->getName(), testTable.Alloc((void *)test2[i]));
+                testTable.Alloc((void *)test2[i]);
             }
         }
     }
@@ -145,8 +175,11 @@ void
 ThreadTest()
 {
     switch (testnum) {
-    case 0:
+    case 4:
         TableTestDriver();
+    break;
+    case 5:
+        ThreadTestForBoundedBuffer();
     break;
     case 1:
 	    ThreadTest1();
@@ -157,6 +190,7 @@ ThreadTest()
     case 3:
         ThreadTest3();
     break;
+
     default:
 	printf("No test specified.\n");
 	break;

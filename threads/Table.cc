@@ -8,18 +8,19 @@ Table::Table(int size):Size(size) {
 
 Table::~Table() {
     //输出表中最后存放的东西
-    char *t;
-    printf("%d\n", currentSize);
-    while((t = (char*)Get(0))) {
-        Release(0);
-        printf("%s ", t);
+    // char *t;
+    printf("size: %d\n", currentSize);
+    for(int i = 0; i <= currentSize; ++i) {
+        printf("%s ", (char*)array[i]);
     }
     putchar('\n');
     delete [] array;
+    delete tableLock;
 }
 
 int Table::Alloc(void* object) {
     tableLock->Acquire();
+    printf("thread %c insert %s\n", currentThread->getName()[1], (char*) object);
     if(currentSize == Size - 1) {
         tableLock->Release();
         return -1;
@@ -41,10 +42,12 @@ void* Table::Get(int index) {
 
 void Table::Release(int index) {
     tableLock->Acquire();
+    
     if(index > currentSize || currentSize == -1) {
         tableLock->Release();
         return ;
     }
+    printf("thread %c release %s\n", currentThread->getName()[1], (char*) array[index]);
     currentThread->Yield();
     for(int i = index; i < currentSize; ++i) {
         

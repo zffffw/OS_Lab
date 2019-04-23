@@ -1,51 +1,68 @@
-
 #include "BoundedBuffer.h"
-#include <stdlib.h>
 
-BoundedBuffer::BoundedBuffer(int maxsize):maxSize(maxsize) {
-    boundLock = new Lock("boundLock");
-    notFull = new Condition("notFull");
-    notEmpty = new Condition("notEmpty");
-    count = 0;
+BoundedBuffer:: BoundedBuffer(int maxsize) {
+    maxSize = maxsize;
+    buffer = new char[maxSize + 1];
+    buffer[maxSize] = '\0'; // set rear to zero for ouput
+    // buffer = (char *)malloc(maxsize * sizeof(char));
+    lock = new Lock("Lock in bounded buffer");
+    notFull = new Condition("Condition for not full");
+    notEmpty = new Condition("Condition for empty");
     nextRead = 0;
     nextWrite = 0;
-    buffer = (void *)malloc(maxSize * sizeof(void));
 }
 
-BoundedBuffer::~BoundedBuffer() {
-    delete boundLock;
+BoundedBuffer:: ~BoundedBuffer() {
+    delete [] buffer;
+    delete lock;
     delete notFull;
     delete notEmpty;
 }
-
-void BoundedBuffer::Read(void *data, int size) {
-    boundLock->Acquire();
-    //no things to read
-    while(count == 0) {
-        notEmpty->Wait(boundLock);
+     
+void BoundedBuffer:: Read(void *data, int size) {
+    lock->Acquire();
+    while (count - size < 0){
+        notEmpty->Wait(lock);
     }
-
-    for(int i = 0; i < size; ++i) {
-        memcpy(data + i, buffer + nextRead, sizeof(void));
-        nextRead = (nextRead++) % maxSize;
+    char *cdata;
+    cdata = (char *)data;
+    int secondPart = nextRead + size > maxSize ? (nextRead + size) % maxSize : 0;
+    int firstPart = size - secondPart;
+    memcpy(cdata, buffer + nextRead, firstPart);
+    nextRead += firstPart;
+    count -= firstPart;
+    if (secondPart) {
+        nextRead = 0;
+        memcpy(cdata + firstPart, buffer + nextRead, secondPart);
+        nextRead += secondPart;
+        count -= secondPart;
     }
-    count += size;
-    notFull->Signal(boundLock);
-    boundLock->Release();
+    cdata[size] = '\0';
+    data = (void *)cdata;
+    notFull->Signal(lock);
+    lock->Release();
+    printf("\t(Read \"%s\" from buffer) (Next read[%d])\n", cdata, nextRead);
 }
 
-void BoundedBuffer::Write(void *data, int size) {
-    boundLock->Acquire();
-    //no enough size to write
-    while(count + size > maxSize) {
-        notFull->Wait(boundLock);
+void BoundedBuffer:: Write(void *data, int size) {
+    lock->Acquire();
+    char *cData = (char *) data;
+    while (count + size > maxSize){
+        notFull->Wait(lock);
     }
-    for(int i = 0; i < size; ++i) {
-        memcpy(buffer + nextWrite, data + i, sizeof(void));
-        nextWrite = (nextWrite++) % maxSize;
-    }
-    count += size;
-    notEmpty->Signal(boundLock);
-    boundLock->Release();
-}
 
+    int secondPart = nextWrite + size > maxSize ? (nextWrite + size) % maxSize : 0;
+    int firstPart = size - secondPart;
+    memcpy(buffer + nextWrite, cData, firstPart);
+    count += firstPart;
+    nextWrite += firstPart;
+    if (secondPart) {
+        nextWrite = 0;
+        memcpy(buffer + nextWrite, cData + firstPart, secondPart);
+        nextWrite += secondPart;
+        count += secondPart;
+    }
+    notEmpty->Signal(lock);
+    lock->Release();
+    printf("\t(Current Buffer \"%s\") (Next write[%d])\n", buffer, nextWrite);
+}
