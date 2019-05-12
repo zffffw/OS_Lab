@@ -15,6 +15,7 @@
 #include "thread.h"
 #include "dllist.h"
 #include "system.h"
+#include "EventBarrier.h"
 #include "BoundedBuffer.h"
 // testnum is set in main.cc
 int testnum = 1;
@@ -22,6 +23,7 @@ Table testTable(10);
 Lock test_lock("test_lock");
 Condition test_condition("test_condition");
 BoundedBuffer buffer(30);
+EventBarrier barrier("test barrier");
 //----------------------------------------------------------------------
 // SimpleThread
 // 	Loop 5 times, yielding the CPU to another ready thread 
@@ -61,6 +63,48 @@ void ASimpleRemoveTest(int which) {
 }
 void ASimpleRemoveTest2(int which) {
     sortInsertNum(&DL, which);
+}
+
+void doBarrierThreadTestWait(int which) {
+    printf("%d is doing test.\n", which);
+    barrier.Wait();
+}
+
+void BarrierThreadTest() {
+    Thread* t[5];
+    // barrier.Wait();
+    for (int i = 0; i < 5; ++i) {
+        char* name;
+        name = new char[2];
+        name[0] = i + '0';
+        t[i] = new Thread(name);
+    }
+    for(int i = 0; i < 5; ++i) {
+        t[i]->Fork(doBarrierThreadTestWait, i);
+    }
+    currentThread->Yield();
+    printf("%s 111\n", currentThread->getName());
+    barrier.Signal();
+    
+    currentThread->Yield();
+    printf("main-complete.\n");
+
+    for (int i = 0; i < 5; ++i) {
+        char* name;
+        name = new char[3];
+        name[0] = i + '0';
+        name[1] = 0;
+        t[i] = new Thread(name);
+    }
+    for(int i = 0; i < 5; ++i) {
+        t[i]->Fork(doBarrierThreadTestWait, i);
+    }
+    currentThread->Yield();
+    printf("%s 111\n", currentThread->getName());
+    barrier.Signal();
+    currentThread->Yield();
+
+
 }
 
 void TestBoundedBuffer(int which) {
@@ -190,7 +234,9 @@ ThreadTest()
     case 3:
         ThreadTest3();
     break;
-
+    case 6:
+        BarrierThreadTest();
+    break;
     default:
 	printf("No test specified.\n");
 	break;

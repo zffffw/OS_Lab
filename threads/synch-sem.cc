@@ -148,6 +148,7 @@ void Condition::Signal(Lock* conditionLock) {
 }
 void Condition::Broadcast(Lock* conditionLock) {
     ASSERT(conditionLock->isHeldByCurrentThread());
+    printf("%s is broadcasting.\n", currentThread->getName());
     while(numWaiting){
         sem->V();
         numWaiting--;

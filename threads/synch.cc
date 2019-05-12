@@ -65,10 +65,11 @@ void
 Semaphore::P()
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
-    
+    printf("%s Pvalue %d\n",name, value);
     while (value == 0) { 			// semaphore not available
 	queue->Append((void *)currentThread);	// so go to sleep
-	currentThread->Sleep();
+	printf("%s is sleeping..\n", currentThread->getName());
+    currentThread->Sleep();
     } 
     value--; 					// semaphore available, 
 						// consume its value
@@ -94,6 +95,7 @@ Semaphore::V()
     if (thread != NULL)	   // make thread ready, consuming the V immediately
 	scheduler->ReadyToRun(thread);
     value++;
+    printf("%s %d Vvalue\n",name, value);
     (void) interrupt->SetLevel(oldLevel);
 }
 
@@ -101,86 +103,66 @@ Semaphore::V()
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
 Lock::Lock(char* debugName) {
-    queue = new List;
+    sem = new Semaphore("sem1", 1);
     name = debugName;
+}
+
+Lock::~Lock() {
+    delete sem;
 }
 bool Lock::isHeldByCurrentThread() {
     return lockThread != NULL && lockThread == currentThread;
 }
 
-Lock::~Lock() {
-    delete queue;
-}
 void Lock::Acquire() {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    while(lockThread) {
-        queue->Append((void *)currentThread);
-        currentThread->Sleep();
-    }
+    printf("%s acquare lock %s \n", currentThread->getName(), name);
+    sem->P();
     lockThread = currentThread;
-    (void) interrupt->SetLevel(oldLevel);
 }
 
 void Lock::Release() {
-    Thread *thread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    // if currentThread is not lockThread then sleep
+    printf("%s release lock %s \n", currentThread->getName(), name);
     ASSERT(isHeldByCurrentThread());
-    // while(!isHeldByCurrentThread()) {
-    //     queue->Append((void *)currentThread);
-    //     currentThread->Sleep();
-    // }
-    // currentThread is lockThread, release and run next thread
-    thread = (Thread *)queue->Remove();
-    if (thread != NULL)	   // make thread ready, consuming the V immediately
-	    scheduler->ReadyToRun(thread);
+    sem->V();
     lockThread = NULL;
-    (void) interrupt->SetLevel(oldLevel);
 }
 
-Condition::Condition(char* debugName) { 
+Condition::Condition(char* debugName, bool isBarrier) { 
     name = debugName;
-    queue = new List;
+    if (isBarrier) {
+        sem = new Semaphore("cond sem", 0);
+    } else {
+        sem = new Semaphore("cond sem", 1);
+    }
     numWaiting = 0;
 }
 Condition::~Condition() { 
-    delete queue;
+    delete sem;
 }
 
-void Condition::Wait(Lock* conditionLock) { 
+void Condition::Wait(Lock* conditionLock) {
+    printf("%s is conWait...\n", currentThread->getName()); 
     ASSERT(conditionLock->isHeldByCurrentThread()); 
-
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    
-    queue->Append((void *)currentThread);
     numWaiting ++;
     conditionLock->Release();
-
-    currentThread->Sleep();
-
-    (void) interrupt->SetLevel(oldLevel);
+    
+    sem->P();
     conditionLock->Acquire();
-
 }
 void Condition::Signal(Lock* conditionLock) {
     ASSERT(conditionLock->isHeldByCurrentThread());
-    Thread *thread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    
-    thread = (Thread *)queue->Remove();
-    if (thread != NULL) {
-	    scheduler->ReadyToRun(thread);
-        numWaiting --;
-    }
-    (void) interrupt->SetLevel(oldLevel);
-}
-void Condition::Broadcast(Lock* conditionLock) {
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    Thread *thread;
-    while(!queue->IsEmpty()) {
-        thread = (Thread *) queue->Remove();
-        scheduler->ReadyToRun(thread);
+    if(numWaiting) {
+        sem->V();
         numWaiting--;
     }
-    (void) interrupt->SetLevel(oldLevel);
+}
+void Condition::Broadcast(Lock* conditionLock) {
+    printf("%s is Signal, %s\n", currentThread->getName(), (conditionLock->lockThread)->getName());
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    printf("%s is broadcasting.\n", currentThread->getName());
+    while(numWaiting){
+        sem->V();
+        printf("%d\n", numWaiting);
+        numWaiting--;
+    }
 }

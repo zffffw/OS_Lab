@@ -9,7 +9,7 @@ Table::Table(int size):Size(size) {
 Table::~Table() {
     //输出表中最后存放的东西
     // char *t;
-    printf("size: %d\n", currentSize);
+    // printf("size: %d\n", currentSize);
     for(int i = 0; i <= currentSize; ++i) {
         printf("%s ", (char*)array[i]);
     }

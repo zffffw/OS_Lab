@@ -8,7 +8,7 @@
 
 #ifndef DLLIST_H
 #define DLLIST_H
-#include "synch-sem.h"
+#include "synch.h"
 extern int lineNum;
 extern Lock mutex;
 class DLLElement {
