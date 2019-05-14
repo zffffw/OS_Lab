@@ -23,9 +23,10 @@
 #include "timer.h"
 #include "system.h"
 
+
 // dummy function because C++ does not allow pointers to member functions
 static void TimerHandler(int arg)
-{ Timer *p = (Timer *)arg; p->TimerExpired(); }
+{printf("time:%d\n", stats->totalTicks); Timer *p = (Timer *)arg; p->TimerExpired(); myalarm->searchAndWakeUp(); }
 
 //----------------------------------------------------------------------
 // Timer::Timer

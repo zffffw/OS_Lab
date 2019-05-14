@@ -17,7 +17,7 @@
 
 #include "copyright.h"
 #include "list.h"
-
+#include "system.h"
 //----------------------------------------------------------------------
 // ListElement::ListElement
 // 	Initialize a list element, so it can be added somewhere on a list.
@@ -180,7 +180,8 @@ List::SortedInsert(void *item, int sortKey)
 {
     ListElement *element = new ListElement(item, sortKey);
     ListElement *ptr;		// keep track
-
+    // printf("%d key\n" ,element->key);
+    
     if (IsEmpty()) {	// if list is empty, put
         first = element;
         last = element;

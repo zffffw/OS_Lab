@@ -104,8 +104,24 @@ void BarrierThreadTest() {
     printf("%s 111\n", currentThread->getName());
     barrier.Signal();
     currentThread->Yield();
+}
 
+void alarmOperate(int arg) {
+    
+    printf("%s is doing alarm test.\n", currentThread->getName());
+    myalarm->Pause(arg);
+    printf("%s is wake up ...\n", currentThread->getName());
+}
 
+void alarmtest() {
+    Thread *t[10];
+    for(int i = 0; i < 10; ++i) {
+        char *name = new char[3];
+        name[0] = i + '0';
+        t[i] = new Thread(name);
+        t[i]->Fork(alarmOperate, (10 - i)*100);
+    }
+    currentThread->Yield();
 }
 
 void TestBoundedBuffer(int which) {
@@ -236,7 +252,10 @@ ThreadTest()
         ThreadTest3();
     break;
     case 6:
-        BarrierThreadTest();
+        BarrierThreadTest();   
+    break;
+    case 7:
+        alarmtest();
     break;
     default:
 	printf("No test specified.\n");

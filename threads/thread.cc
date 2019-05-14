@@ -186,7 +186,9 @@ Thread::Yield ()
     if (nextThread != NULL) {
     // printf("\n************************\n*next thread is %s*\n************************\n\n", nextThread->getName());
 	scheduler->ReadyToRun(this);
+    
 	scheduler->Run(nextThread);
+   
     }
     (void) interrupt->SetLevel(oldLevel);
 }
