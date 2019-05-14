@@ -16,6 +16,7 @@
 #include "stats.h"
 #include "timer.h"
 #include "dllist.h"
+#include "Alarm.h"
 #define MOVERIGHT(y) printf("\033[%dC",(y))
 #define MOVELEFT(y) printf("\033[%dD", (y))
 // Initialization and cleanup routines
@@ -23,6 +24,7 @@ extern void Initialize(int argc, char **argv); 	// Initialization,
 						// called before anything else
 extern void Cleanup();				// Cleanup, called when
 						// Nachos is done.
+class Alarm;
 class DLList;
 extern Thread *currentThread;			// the thread holding the CPU
 extern Thread *threadToBeDestroyed;  		// the thread that just finished
@@ -31,6 +33,7 @@ extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 extern char *changemode;
+extern Alarm *myalarm;
 extern DLList DL;
 extern int changePoint[100];
 #ifdef USER_PROGRAM

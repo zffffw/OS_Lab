@@ -7,7 +7,6 @@
 
 #include "copyright.h"
 #include "system.h"
-#include "dllist.h"
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
 
@@ -17,6 +16,7 @@ Scheduler *scheduler;			// the ready list
 Interrupt *interrupt;			// interrupt status
 Statistics *stats;			// performance metrics
 Timer *timer;				// the hardware timer device,
+Alarm *myalarm;
 DLList DL;
 int changePoint[100];
 char* changemode;
@@ -136,9 +136,9 @@ Initialize(int argc, char **argv)
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
     scheduler = new Scheduler();		// initialize the ready queue
-    if (randomYield)				// start the timer (if needed)
+    // if (randomYield)				// start the timer (if needed)
 	timer = new Timer(TimerInterruptHandler, 0, randomYield);
-
+    myalarm = new Alarm("test alarm");
     threadToBeDestroyed = NULL;
 
     // We didn't explicitly allocate the current thread we are running in.

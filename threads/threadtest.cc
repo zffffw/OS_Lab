@@ -17,6 +17,7 @@
 #include "system.h"
 #include "EventBarrier.h"
 #include "BoundedBuffer.h"
+class EventBarrier;
 // testnum is set in main.cc
 int testnum = 1;
 Table testTable(10);

@@ -1,3 +1,7 @@
+
+
+#ifndef EVENTBARRIER_H
+#define EVENTBARRIER_H
 #include "synch.h"
 #include "thread.h"
 #include "system.h"
@@ -22,3 +26,5 @@ class EventBarrier {
         Lock* completeConLock;
         int n;
 };
+
+#endif
